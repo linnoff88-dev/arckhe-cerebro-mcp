@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>cerebro-mcp — your second brain as MCP tools</title>
+<meta content="MCP server that exposes a second brain (the astra-2cerebro kit’s Markdown folder) as tools for Claude Code, Codex, Claude Desktop, n8n, and bots. Read-only by default, optional writing, only inside the folder." name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#0c0c10; --bg2:#14141b; --card:#16161e; --line:#272730;
+    --txt:#e9e9ee; --mut:#9a9aa6; --amb:#E2A23B; --amb2:#f0c070; --sky:#38bdf8; --pro:#cbd5e1;
+    color-scheme:dark;
+  }
+  body.light{
+    --bg:#f6f7f9; --bg2:#eceef2; --card:#ffffff; --line:#e1e3ea;
+    --txt:#1a1a22; --mut:#5b5b68; --amb:#b9791d; --amb2:#a16207; --sky:#0369a1; --pro:#b45309;
+    color-scheme:light;
+  }
+  body.light .hero .glow{opacity:.5}
+  body.light pre{background:#0e0e14;color:#d6d6e0}
+  body.light pre .c{color:#8a8a98}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.65 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:Sora,sans-serif;line-height:1.15;margin:0}
+  a{color:var(--amb);text-decoration:none}
+  code,pre{font-family:"JetBrains Mono",monospace}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+  .mut{color:var(--mut)} .amb{color:var(--amb)}
+  .chip{display:inline-block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);font-weight:600;font-family:Sora}
+  nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(12px);background:rgba(12,12,16,.78);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+  nav .brand{display:flex;align-items:center;gap:8px;font-family:Sora;font-weight:800;letter-spacing:-.02em;color:var(--amb)}
+  nav .brand .emoji{font-size:1.25rem}
+  nav .sep{color:var(--mut);opacity:.45}
+  nav .inema{color:var(--sky);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .inema:hover{filter:brightness(1.15)}
+  nav .pro{color:var(--pro);font-weight:600;font-size:.88rem;font-family:Sora}
+  nav .pro:hover{filter:brightness(1.15)}
+  nav .clubpro{display:inline-flex;align-items:center;gap:6px}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:20px;font-size:.92rem}
+  nav .links a.sec{color:var(--mut)} nav .links a.sec:hover{color:var(--txt)}
+  .tgl{background:var(--bg2);border:1px solid var(--line);color:var(--txt);width:38px;height:38px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}
+  .tgl:hover{border-color:var(--amb)}
+  .btn{display:inline-block;background:var(--amb);color:#1a1206;font-weight:600;padding:.6em 1.05em;border-radius:10px;font-family:Sora}
+  .btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+  @media(max-width:760px){nav .links a.sec{display:none}}
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero .glow{position:absolute;inset:-40% -20% auto auto;width:70%;height:600px;background:radial-gradient(closest-side,rgba(226,162,59,.22),transparent 70%);pointer-events:none}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding:74px 22px}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.025em}
+  .hero p.lead{font-size:1.18rem;color:var(--mut);margin:1.1em 0 1.6em;max-width:34ch}
+  .hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero figure{margin:0;border-radius:16px;overflow:hidden;border:1px solid var(--line);box-shadow:0 30px 80px -30px #000}
+  .hero figure img{width:100%;display:block}
+  @media(max-width:780px){.hero .wrap{grid-template-columns:1fr;padding:48px 22px}}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;letter-spacing:-.02em}
+  section .sub{color:var(--mut);margin:.6em 0 2em;max-width:62ch}
+  .grid{display:grid;gap:16px}
+  .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:540px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{font-size:1.05rem;margin-bottom:.4em}
+  .card p{color:var(--mut);font-size:.92rem;margin:0}
+  .num{display:inline-flex;width:30px;height:30px;align-items:center;justify-content:center;border-radius:8px;background:rgba(226,162,59,.14);color:var(--amb);font-family:Sora;font-weight:800;font-size:.9rem;margin-bottom:.7em}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+  .flow span{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:.45em .9em;font-size:.85rem;font-family:Sora;font-weight:600}
+  .flow .arr{color:var(--amb);border:none;background:none;padding:0 .1em}
+  pre{background:#0a0a0e;border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow:auto;font-size:.86rem;line-height:1.6;color:#d6d6e0}
+  pre .c{color:#6f6f7c} pre .k{color:var(--amb2)} pre .s{color:#9ece6a}
+  .step{display:grid;grid-template-columns:46px 1fr;gap:16px;margin-bottom:26px}
+  .step .b{width:46px;height:46px;border-radius:12px;background:var(--amb);color:#1a1206;font-family:Sora;font-weight:800;font-size:1.25rem;display:flex;align-items:center;justify-content:center}
+  .step h3{font-size:1.12rem;margin-bottom:.3em}
+  .step p{color:var(--mut);margin:.2em 0 .7em}
+  .ex{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:680px){.ex{grid-template-columns:1fr}}
+  .ex figure{margin:0;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .ex figure img{width:100%;display:block}
+  .ex figcaption{padding:12px 14px;font-size:.88rem;color:var(--mut);background:var(--card)}
+  .phase{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .phase:last-child{border:none}
+  .phase .tag{flex:0 0 92px;font-family:Sora;font-weight:800;color:var(--amb)}
+  .phase .d strong{display:block;margin-bottom:.2em}
+  .phase .d span{color:var(--mut);font-size:.92rem}
+  footer{padding:46px 0;text-align:center;color:var(--mut);font-size:.9rem}
+  .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:.3em .8em;font-size:.78rem;color:var(--mut);margin:0 4px}
+  /* extras desta pagina (so conteudo; nao altera o padrao) */
+  table.ferr{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  table.ferr th,table.ferr td{padding:10px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  table.ferr th{font-family:Sora;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+  table.ferr tr:last-child td{border-bottom:none}
+  table.ferr code{color:var(--amb2);font-size:.85rem}
+  .tabwrap{overflow-x:auto}
+  .ex .conv{padding:18px 20px;background:var(--card);font-size:.92rem}
+  .ex .conv p{margin:.35em 0}
+  .ex .conv .voce{color:var(--txt)} .ex .conv .ag{color:var(--mut)} .ex .conv .tool{color:var(--amb2);font-family:"JetBrains Mono",monospace;font-size:.8rem}
+</style>
+<link href="https://inematds.github.io/cerebro-mcp/guia/" hreflang="pt-BR" rel="alternate"/><link href="https://inematds.github.io/cerebro-mcp/guia/en/" hreflang="en" rel="alternate"/><link href="https://inematds.github.io/cerebro-mcp/guia/es/" hreflang="es" rel="alternate"/></head>
+<body><div class="inema-lang" style="position:fixed;right:14px;bottom:14px;z-index:9999;display:flex;gap:2px;padding:4px;border-radius:10px;background:rgba(12,12,16,.82);border:1px solid rgba(226,162,59,.45);font:600 12px/1 Sora,Inter,system-ui,sans-serif;backdrop-filter:blur(8px)" translate="no"><a href="../" hreflang="pt-BR" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#e9e9ee">PT</a><a href="./" hreflang="en" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#1a1206;background:#E2A23B">EN</a><a href="../es/" hreflang="es" style="padding:6px 8px;border-radius:7px;text-decoration:none;color:#e9e9ee">ES</a></div>
+<nav><div class="wrap">
+<a class="brand" href="#top"><span class="emoji">🧠</span> cerebro-mcp</a>
+<span class="sep">|</span>
+<span class="clubpro">
+<a class="inema" href="https://inema.club" rel="noopener" target="_blank">INEMA.CLUB</a>
+<span class="sep">-</span>
+<a class="pro" href="https://inema.pro" rel="noopener" target="_blank">PRO</a>
+</span>
+<div class="links">
+<a class="sec" href="#oque">What it is</a>
+<a class="sec" href="#fluxo">How it works</a>
+<a class="sec" href="#guia">User guide</a>
+<a class="sec" href="#exemplos">Examples</a>
+<a class="sec" href="#roadmap">Roadmap</a>
+<button aria-label="Toggle theme" class="tgl" id="themeToggle" title="Toggle theme">🌙</button>
+<a class="btn" href="https://github.com/inematds/cerebro-mcp" rel="noopener" target="_blank">GitHub</a>
+</div>
+</div></nav>
+<header class="hero" id="top">
+<div class="glow"></div>
+<div class="wrap">
+<div>
+<span class="chip">MCP server · second brain</span>
+<h1>A brain. <span class="amb">Several</span> AI clients.</h1>
+<p class="lead">Exposes the astra-2cerebro kit's Markdown folder as MCP tools for Claude Code, Codex, Claude Desktop, n8n, and bots. Read-only by default; writing only if you enable it.</p>
+<div class="cta">
+<a class="btn" href="#guia">Start the guide</a>
+<a class="btn ghost" href="https://github.com/inematds/cerebro-mcp" rel="noopener" target="_blank">View on GitHub</a>
+</div>
+</div>
+<figure><img alt="Illustration of a brain connected to several AI assistants" src="../assets/hero.jpg"/></figure>
+</div>
+</header>
+<section id="oque"><div class="wrap">
+<span class="chip">What it is</span>
+<h2>Your second brain, in any MCP client</h2>
+<p class="sub">The astra-2cerebro kit stores who you are, your priorities, decisions, projects, and a linked wiki in Markdown files. cerebro-mcp starts an MCP server pointed to that folder, and each client gets the tools <code>cerebro_*</code>. The brain remains just files; what changes is who can read them.</p>
+<div class="grid g3">
+<div class="card"><h3>🧠 Thirteen tools, one folder</h3><p>Context, priorities, route map, search, reading, wiki, projects, connections, and routines. Plus three writing tools (decision, source, execution) that only appear when you enable <code>--escrita</code>.</p></div>
+<div class="card"><h3>🔒 Only within the brain</h3><p>Every path goes through a check that blocks <code>../</code>, absolute paths from outside, symlinks pointing outside, <code>.git</code>, <code>node_modules</code> e <code>.env</code>. Nothing leaves the machine.</p></div>
+<div class="card"><h3>🔌 stdio or HTTP</h3><p>Via stdio for Claude Code, Codex, and Claude Desktop. With <code>--http</code>, an endpoint at 127.0.0.1 for n8n, bots, and scripts. No index, no database: reads from disk on the fly.</p></div>
+</div>
+</div></section>
+<section id="fluxo"><div class="wrap">
+<span class="chip">How it works</span>
+<h2>From the client to the Markdown file</h2>
+<p class="sub">The client starts the server as a child process, asks which tools are available, and calls them when needed. The server reads the folder on the spot and returns Markdown text with the file path so the model can cite the source.</p>
+<div class="flow">
+<span>MCP client</span><span class="arr">→</span>
+<span>bin/cerebro-mcp.mjs</span><span class="arr">→</span>
+<span>resolverDir (--dir / CEREBRO_DIR / current folder)</span><span class="arr">→</span>
+<span>cerebro_* tools</span><span class="arr">→</span>
+<span>caminhoSeguro</span><span class="arr">→</span>
+<span>.md from the brain</span><span class="arr">→</span>
+<span>text with path</span>
+</div>
+<div class="grid g3" style="margin-top:26px">
+<div class="card"><span class="num">1</span><h3>Find</h3><p><code>--dir</code>, then <code>CEREBRO_DIR</code>, then the current folder if it exists <code>AGENTS.md</code> or <code>CLAUDE.md</code>. Without a brain, a clear error and exit code 1.</p></div>
+<div class="card"><span class="num">2</span><h3>Record</h3><p>Ten read tools and the resources <code>cerebro://</code> always; the three write tools only with <code>--escrita</code> or <code>CEREBRO_ESCRITA=1</code>.</p></div>
+<div class="card"><span class="num">3</span><h3>Answer</h3><p>Each call reads from disk, builds Markdown, and returns it. A predictable error becomes <code>isError</code>; the process never crashes because of a bad call.</p></div>
+</div>
+<div class="tabwrap" style="margin-top:26px">
+<table class="ferr">
+<thead><tr><th>Tool</th><th>What it does</th><th>Writing</th></tr></thead>
+<tbody>
+<tr><td><code>cerebro_contexto()</code></td><td>about-me + about-the-work + priorities, with the paths</td><td>no</td></tr>
+<tr><td><code>cerebro_prioridades()</code></td><td>only <code>contexto/prioridades.md</code></td><td>no</td></tr>
+<tr><td><code>cerebro_rotas()</code></td><td>the “Route map” section of AGENTS.md / CLAUDE.md</td><td>no</td></tr>
+<tr><td><code>cerebro_buscar(consulta, limite?)</code></td><td>search for terms across all .md files, with excerpt and relevance</td><td>no</td></tr>
+<tr><td><code>cerebro_ler(caminho)</code></td><td>contents of a file or folder listing, only within the brain</td><td>no</td></tr>
+<tr><td><code>cerebro_wiki_indice()</code> · <code>cerebro_wiki_pagina(slug)</code></td><td>wiki index and page by slug</td><td>no</td></tr>
+<tr><td><code>cerebro_projetos()</code> · <code>cerebro_conexoes()</code> · <code>cerebro_rotinas()</code></td><td>projects with status, connections table, routines, and executions</td><td>no</td></tr>
+<tr><td><code>cerebro_registrar_decisao(...)</code></td><td>dated entry in <code>decisoes/registro.md</code></td><td><strong>yes</strong></td></tr>
+<tr><td><code>cerebro_adicionar_fonte(nome, conteudo)</code></td><td><code>fontes/AAAA-MM-DD-slug.md</code>, without overwriting</td><td><strong>yes</strong></td></tr>
+<tr><td><code>cerebro_registrar_execucao(id, resultado, ...)</code></td><td>new line in the routine execution log</td><td><strong>yes</strong></td></tr>
+</tbody>
+</table>
+</div>
+</div></section>
+<section id="pre"><div class="wrap">
+<span class="chip">Prerequisites</span>
+<h2>Three things before you start</h2>
+<p class="sub">No database, no external service. Just Node, a brain folder, and an MCP client.</p>
+<div class="grid g3">
+<div class="card"><h3>Node.js 20+</h3><p>The server is pure ESM. If you use Claude Code or Codex, you already have it.</p><pre><span class="c"># check the version</span>
+<span class="k">node</span> --version</pre></div>
+<div class="card"><h3>A brain from the astra-2cerebro kit</h3><p>A folder with AGENTS.md/CLAUDE.md, contexto/, wiki/, decisoes/. If you don’t have one yet, install the kit.</p><pre><span class="c"># the kit creates the structure</span>
+<span class="k">git clone</span> <span class="s">https://github.com/inematds/astra-2cerebro</span></pre></div>
+<div class="card"><h3>An MCP client</h3><p>Claude Code, Codex, Claude Desktop — or n8n/a bot in HTTP mode.</p><pre><span class="c"># example: Claude Code installed</span>
+<span class="k">claude</span> mcp list</pre></div>
+</div>
+</div></section>
+<section id="guia"><div class="wrap">
+<span class="chip">User guide · step by step</span>
+<h2>From cloning to asking "what are my priorities?" for the first time</h2>
+<p class="sub">All commands are real and in the repository. Replace <code>/home/voce/meu-cerebro</code> through your brain folder.</p>
+<div class="step"><div class="b">1</div><div>
+<h3>Clone and install</h3>
+<p>Downloads the server, installs the official SDK, and runs the 42 tests against the included fixture.</p>
+<pre><span class="k">git clone</span> <span class="s">https://github.com/inematds/cerebro-mcp.git</span>
+<span class="k">cd</span> cerebro-mcp
+<span class="k">npm</span> install
+<span class="k">npm</span> test   <span class="c"># ℹ tests 42 · pass 42 · fail 0</span></pre>
+</div></div>
+<div class="step"><div class="b">2</div><div>
+<h3>Test against your brain (without any client)</h3>
+<p>The script starts the actual binary and communicates over JSON-RPC via stdio: initialize, tools/list, tools/call.</p>
+<pre><span class="k">node</span> scripts/teste-stdio.mjs /home/voce/meu-cerebro
+<span class="c"># OK  initialize → cerebro-mcp server 1.0.0 (protocol 2025-06-18)
+# OK  tools/list → 10 tools: cerebro_contexto, cerebro_prioridades, ...
+# OK  tools/call cerebro_ler ../../etc/passwd → isError (Access denied)</span></pre>
+</div></div>
+<div class="step"><div class="b">3</div><div>
+<h3>Record in Claude Code</h3>
+<p>One line. To let the agent record decisions and sources, add <code>--escrita</code> at the end.</p>
+<pre><span class="k">claude</span> mcp add cerebro -e CEREBRO_DIR=/home/voce/meu-cerebro -- <span class="k">node</span> /home/voce/cerebro-mcp/bin/cerebro-mcp.mjs
+<span class="c"># or, versioned in the project: .mcp.json with {"mcpServers":{"cerebro":{"command":"node","args":[...],"env":{"CEREBRO_DIR":"..."}}}}</span></pre>
+</div></div>
+<div class="step"><div class="b">4</div><div>
+<h3>Or in Codex / Claude Desktop</h3>
+<p>Codex reads <code>~/.codex/config.toml</code>; Claude Desktop reads <code>claude_desktop_config.json</code>. INSTALAR.md has both complete examples.</p>
+<pre><span class="c"># ~/.codex/config.toml</span>
+[mcp_servers.cerebro]
+command = <span class="s">"node"</span>
+args = [<span class="s">"/home/voce/cerebro-mcp/bin/cerebro-mcp.mjs"</span>]
+[mcp_servers.cerebro.env]
+CEREBRO_DIR = <span class="s">"/home/voce/meu-cerebro"</span></pre>
+</div></div>
+<div class="step"><div class="b">5</div><div>
+<h3>Chat</h3>
+<p>The agent decides on its own when to call each tool. Start with what requires context.</p>
+<pre><span class="c"># you:</span> Quais são as minhas prioridades deste trimestre?
+<span class="c"># agent → cerebro_prioridades() → responds citing contexto/prioridades.md</span>
+<span class="c"># you:</span> Por que decidimos fazer o site em gerador estático?
+<span class="c"># agent → cerebro_buscar("static site") → cerebro_ler("decisoes/registro.md")</span></pre>
+</div></div>
+<div class="step"><div class="b">6</div><div>
+<h3>HTTP mode for n8n, bots, and scripts</h3>
+<p>Runs on 127.0.0.1, without a session. Requires the header <code>Accept: application/json, text/event-stream</code>; <code>tools/call</code> works without <code>initialize</code> before.</p>
+<pre>CEREBRO_DIR=/home/voce/meu-cerebro <span class="k">node</span> bin/cerebro-mcp.mjs --http 3333
+<span class="k">curl</span> -s <span class="s">http://127.0.0.1:3333/mcp</span> -H <span class="s">'Content-Type: application/json'</span> \
+  -H <span class="s">'Accept: application/json, text/event-stream'</span> \
+  -d <span class="s">'{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"cerebro_prioridades","arguments":{}}}'</span></pre>
+</div></div>
+</div></section>
+<section id="exemplos"><div class="wrap">
+<span class="chip">Examples</span>
+<h2>Two conversations the server makes possible</h2>
+<p class="sub">The same folder, two different clients. The agent calls the tools; you just ask.</p>
+<div class="ex">
+<figure>
+<div class="conv">
+<p class="voce"><strong>You (in Codex):</strong> What did Company X ask for at the last meeting?</p>
+<p class="tool">→ cerebro_wiki_pagina("empresa-x") → cerebro_ler("wiki/fontes/2026-09-01-reuniao-empresa-x.md")</p>
+<p class="ag"><strong>Agent:</strong> Approved the phase 2 scope, with a deadline at the end of October, and agreed to decide who will validate the weekly reports (source: wiki/fontes/2026-09-01-reuniao-empresa-x.md).</p>
+</div>
+<figcaption>Reading: the wiki answers with the cited source.</figcaption>
+</figure>
+<figure>
+<div class="conv">
+<p class="voce"><strong>You (in Claude Code, server with --escrita):</strong> Records that we’ll accept phase 2, with a deadline in October, because phase 1 was approved.</p>
+<p class="tool">→ cerebro_registrar_decisao(titulo, decisao, porque)</p>
+<p class="ag"><strong>Agent:</strong> Recorded in decisoes/registro.md with today’s date: "## 2026-09-07: Accept phase 2 of Projeto Alfa". Would you like me to note the alternatives considered?</p>
+</div>
+<figcaption>Writing: input in the kit's format, append-only.</figcaption>
+</figure>
+</div>
+</div></section>
+<section id="roadmap"><div class="wrap">
+<span class="chip">Roadmap</span>
+<h2>What’s ready and what’s next</h2>
+<p class="sub">Version 1.0.0 covers the kit's entire lifecycle. The next phases are about convenience, not foundations.</p>
+<div class="phase"><div class="tag">v1.0 ✓</div><div class="d"><strong>Full server</strong><span>13 tools, cerebro:// resources, stdio and HTTP, path blocking, 42 tests, stdio and HTTP smoke tests, documentation in PT-BR (README, INSTALAR, docs/).</span></div></div>
+<div class="phase"><div class="tag">next</div><div class="d"><strong>Ready-to-use MCP prompts</strong><span>Expose prompts like "daily summary" and "review this month's decisions" that already chain together the right tools.</span></div></div>
+<div class="phase"><div class="tag">after</div><div class="d"><strong>Optional index for large brains</strong><span>Search cache rebuilt when a file changes, keeping index-free behavior as the default.</span></div></div>
+<div class="phase"><div class="tag">idea</div><div class="d"><strong>Simple authentication in HTTP mode</strong><span>A token in an environment variable to expose the server on a trusted network without a proxy.</span></div></div>
+</div></section>
+<footer>
+<div class="wrap">
+<div class="pill">Node.js 20+</div><div class="pill">@modelcontextprotocol/sdk</div><div class="pill">zod</div><div class="pill">node --test</div>
+<p style="margin-top:18px">cerebro-mcp · MIT · built for the kit <a href="https://github.com/inematds/astra-2cerebro">astra-2cerebro</a> ·
+      <a href="https://github.com/inematds/cerebro-mcp">github.com/inematds/cerebro-mcp</a> ·
+      <a href="https://inema.club">INEMA.CLUB</a></p>
+</div>
+</footer>
+<script>
+  (function(){
+    var KEY='cerebro-mcp-theme';
+    var b=document.body, t=document.getElementById('themeToggle');
+    if(localStorage.getItem(KEY)==='light'){ b.classList.add('light'); t.textContent='☀️'; }
+    t.addEventListener('click',function(){
+      var light=b.classList.toggle('light');
+      t.textContent=light?'☀️':'🌙';
+      localStorage.setItem(KEY, light?'light':'dark');
+    });
+  })();
+</script>
+</body>
+</html>

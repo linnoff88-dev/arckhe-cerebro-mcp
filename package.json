@@ -1,0 +1,36 @@
+{
+  "name": "cerebro-mcp",
+  "version": "1.0.0",
+  "description": "Servidor MCP que expõe um segundo cérebro (pasta Markdown do kit astra-2cerebro) como ferramentas para Claude Code, Codex, Claude Desktop, n8n e bots.",
+  "type": "module",
+  "license": "MIT",
+  "author": "inematds",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inematds/cerebro-mcp.git"
+  },
+  "homepage": "https://inematds.github.io/cerebro-mcp/guia/",
+  "keywords": ["mcp", "model-context-protocol", "segundo-cerebro", "markdown", "claude-code", "codex", "astra-2cerebro"],
+  "bin": {
+    "cerebro-mcp": "bin/cerebro-mcp.mjs"
+  },
+  "main": "src/servidor.mjs",
+  "exports": {
+    ".": "./src/servidor.mjs",
+    "./cerebro": "./src/cerebro.mjs"
+  },
+  "files": ["bin", "src", "VERSION", "README.md", "INSTALAR.md", "LICENSE"],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node bin/cerebro-mcp.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "teste:stdio": "node scripts/teste-stdio.mjs",
+    "teste:http": "node scripts/teste-http.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.76"
+  }
+}
